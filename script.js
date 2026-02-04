@@ -1,8 +1,43 @@
 const statusBadge = document.getElementById("status");
+const statusText = statusBadge.querySelector(".status-text");
 const runButton = document.getElementById("runBtn");
 const clearButton = document.getElementById("clearBtn");
 const editor = document.getElementById("editor");
 const outputBox = document.getElementById("output");
+const snippetButtons = document.querySelectorAll("[data-snippet]");
+const modal = document.getElementById("outputModal");
+const closeModalButton = document.getElementById("closeModal");
+const modalBackdrop = modal.querySelector(".modal-backdrop");
+
+const snippets = {
+  hello: 'print("Hello, PyAnyWhere!")',
+  loop: 'for i in range(5):\n    print("Loop", i)',
+  math: 'import math\nprint("π:", round(math.pi, 4))',
+};
+
+let pyodideReady = false;
+let pyodideInstance;
+let runCount = 0;
+
+const updateStatus = (message, state = "idle") => {
+  statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error");
+  if (state === "ready") {
+    statusBadge.classList.add("ready");
+  }
+  if (state === "error") {
+    statusBadge.classList.add("error");
+  }
+};
+
+const openModal = () => {
+  modal.classList.add("is-visible");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const closeModal = () => {
+  modal.classList.remove("is-visible");
+  modal.setAttribute("aria-hidden", "true");
 
 let pyodideReady = false;
 let pyodideInstance;
@@ -18,12 +53,22 @@ const showOutput = (message, isError = false) => {
   outputBox.classList.remove("show");
   void outputBox.offsetWidth;
   outputBox.classList.add("show");
+  openModal();
+};
+
+const setRunning = (running) => {
+  runButton.disabled = running;
+  runButton.textContent = running ? "Running…" : "▶ Run";
 };
 
 async function loadPyodideAndPackages() {
   try {
     pyodideInstance = await loadPyodide();
     pyodideReady = true;
+    updateStatus("Python ready", "ready");
+  } catch (error) {
+    showOutput(`Failed to load Python runtime.\n${error}`, true);
+    updateStatus("Python failed to load", "error");
     updateStatus("Python ready", true);
   } catch (error) {
     showOutput(`Failed to load Python runtime.\n${error}`, true);
@@ -32,6 +77,14 @@ async function loadPyodideAndPackages() {
 }
 
 loadPyodideAndPackages();
+
+snippetButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const snippetKey = button.dataset.snippet;
+    editor.value = snippets[snippetKey] ?? editor.value;
+    editor.focus();
+  });
+});
 
 runButton.addEventListener("click", async () => {
   const code = editor.value.trim();
@@ -61,6 +114,8 @@ runButton.addEventListener("click", async () => {
     },
   });
 
+  setRunning(true);
+
   try {
     const result = await pyodideInstance.runPythonAsync(code);
     const returnValue = result !== undefined && result !== null ? String(result) : "";
@@ -68,6 +123,26 @@ runButton.addEventListener("click", async () => {
       .filter(Boolean)
       .join("\n");
 
+    runCount += 1;
+    showOutput(combined || `Run #${runCount}: Code executed successfully.`);
+  } catch (error) {
+    showOutput(String(error), true);
+  } finally {
+    setRunning(false);
+  }
+});
+
+clearButton.addEventListener("click", () => {
+  showOutput("Output cleared.");
+});
+
+closeModalButton.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
     showOutput(combined || "Code executed successfully.");
   } catch (error) {
     showOutput(String(error), true);
