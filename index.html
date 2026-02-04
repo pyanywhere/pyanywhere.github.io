@@ -2,21 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PyAnyWhere</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <main class="app">
+    <header class="app-header">
+      <div>
+        <h1>PyAnyWhere</h1>
+        <p class="tagline">Run Python anywhere, right in your browser.</p>
+      </div>
+      <div class="status" id="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="status-text">Loading Python runtime…</span>
+      </div>
+    </header>
 
-  <header>PyAnyWhere</header>
+    <section class="panel">
+      <div class="panel-header">
+        <label class="panel-label" for="editor">Editor</label>
+        <div class="panel-actions">
+          <button class="chip" data-snippet="hello">Hello</button>
+          <button class="chip" data-snippet="loop">Loop</button>
+          <button class="chip" data-snippet="math">Math</button>
+        </div>
+      </div>
+      <textarea id="editor" spellcheck="false">print("Hello, PyAnyWhere!")</textarea>
+      <p class="helper-text">Tip: Try the snippet chips or run your own code.</p>
+      <div class="actions">
+        <button id="runBtn" class="primary">▶ Run</button>
+        <button id="clearBtn" class="ghost">Clear output</button>
+      </div>
+    </section>
+  </main>
 
-  <textarea id="editor" placeholder="Write Python code here..."></textarea>
-
-  <button id="runBtn">▶ Run</button>
-
-  <pre id="output" class="hidden"></pre>
+  <div class="modal" id="outputModal" aria-hidden="true" role="dialog" aria-labelledby="outputTitle">
+    <div class="modal-backdrop" data-close="modal"></div>
+    <div class="modal-card" role="document">
+      <div class="modal-header">
+        <div>
+          <p class="modal-label" id="outputTitle">Output</p>
+          <p class="modal-subtitle">stdout / stderr</p>
+        </div>
+        <button class="modal-close" id="closeModal" aria-label="Close output">✕</button>
+      </div>
+      <pre id="output" class="output-box">Ready.</pre>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
   <script src="script.js"></script>
-
 </body>
 </html>

@@ -1,29 +1,138 @@
+const statusBadge = document.getElementById("status");
+const statusText = statusBadge.querySelector(".status-text");
+const runButton = document.getElementById("runBtn");
+const clearButton = document.getElementById("clearBtn");
+const editor = document.getElementById("editor");
+const outputBox = document.getElementById("output");
+const snippetButtons = document.querySelectorAll("[data-snippet]");
+const modal = document.getElementById("outputModal");
+const closeModalButton = document.getElementById("closeModal");
+const modalBackdrop = modal.querySelector(".modal-backdrop");
+
+const snippets = {
+  hello: 'print("Hello, PyAnyWhere!")',
+  loop: 'for i in range(5):\n    print("Loop", i)',
+  math: 'import math\nprint("π:", round(math.pi, 4))',
+};
+
 let pyodideReady = false;
-let pyodide;
+let pyodideInstance;
+let runCount = 0;
+
+const updateStatus = (message, state = "idle") => {
+  statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error");
+  if (state === "ready") {
+    statusBadge.classList.add("ready");
+  }
+  if (state === "error") {
+    statusBadge.classList.add("error");
+  }
+};
+
+const openModal = () => {
+  modal.classList.add("is-visible");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const closeModal = () => {
+  modal.classList.remove("is-visible");
+  modal.setAttribute("aria-hidden", "true");
+};
+
+const showOutput = (message, isError = false) => {
+  outputBox.textContent = message;
+  outputBox.classList.toggle("error", isError);
+  outputBox.classList.remove("show");
+  void outputBox.offsetWidth;
+  outputBox.classList.add("show");
+};
+
+const setRunning = (running) => {
+  runButton.disabled = running;
+  runButton.textContent = running ? "Running…" : "▶ Run";
+};
 
 async function loadPyodideAndPackages() {
-  pyodide = await loadPyodide();
-  pyodideReady = true;
+  try {
+    pyodideInstance = await loadPyodide();
+    pyodideReady = true;
+    updateStatus("Python ready", "ready");
+  } catch (error) {
+    showOutput(`Failed to load Python runtime.\n${error}`, true);
+    updateStatus("Python failed to load", "error");
+  }
 }
 
 loadPyodideAndPackages();
 
-document.getElementById("runBtn").addEventListener("click", async () => {
-  const code = document.getElementById("editor").value;
-  const output = document.getElementById("output");
+snippetButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const snippetKey = button.dataset.snippet;
+    editor.value = snippets[snippetKey] ?? editor.value;
+    editor.focus();
+  });
+});
 
-  if (!pyodideReady) {
-    output.textContent = "Loading Python...";
-    output.classList.add("show");
+runButton.addEventListener("click", async () => {
+  const code = editor.value.trim();
+
+  if (!code) {
+    showOutput("Please enter some Python code to run.");
+    openModal();
     return;
   }
 
-  try {
-    let result = await pyodide.runPythonAsync(code);
-    output.textContent = result ?? "Code executed successfully.";
-  } catch (err) {
-    output.textContent = err;
+  if (!pyodideReady) {
+    showOutput("Loading Python runtime... Please wait.");
+    openModal();
+    return;
   }
 
-  output.classList.add("show");
+  let stdout = "";
+  let stderr = "";
+
+  pyodideInstance.setStdout({
+    batched: (output) => {
+      stdout += output + "\n";
+    },
+  });
+
+  pyodideInstance.setStderr({
+    batched: (output) => {
+      stderr += output + "\n";
+    },
+  });
+
+  setRunning(true);
+
+  try {
+    const result = await pyodideInstance.runPythonAsync(code);
+    const returnValue = result !== undefined && result !== null ? String(result) : "";
+    const combined = [stdout.trim(), returnValue.trim(), stderr.trim()]
+      .filter(Boolean)
+      .join("\n");
+
+    runCount += 1;
+    showOutput(combined || `Run #${runCount}: Code executed successfully.`);
+    openModal();
+  } catch (error) {
+    showOutput(String(error), true);
+    openModal();
+  } finally {
+    setRunning(false);
+  }
+});
+
+clearButton.addEventListener("click", () => {
+  showOutput("Output cleared.");
+});
+
+closeModalButton.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
 });
