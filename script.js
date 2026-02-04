@@ -38,6 +38,13 @@ const openModal = () => {
 const closeModal = () => {
   modal.classList.remove("is-visible");
   modal.setAttribute("aria-hidden", "true");
+
+let pyodideReady = false;
+let pyodideInstance;
+
+const updateStatus = (message, ready = false) => {
+  statusBadge.textContent = message;
+  statusBadge.style.color = ready ? "var(--accent)" : "var(--muted)";
 };
 
 const showOutput = (message, isError = false) => {
@@ -62,6 +69,10 @@ async function loadPyodideAndPackages() {
   } catch (error) {
     showOutput(`Failed to load Python runtime.\n${error}`, true);
     updateStatus("Python failed to load", "error");
+    updateStatus("Python ready", true);
+  } catch (error) {
+    showOutput(`Failed to load Python runtime.\n${error}`, true);
+    updateStatus("Python failed to load");
   }
 }
 
@@ -132,4 +143,12 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal.classList.contains("is-visible")) {
     closeModal();
   }
+    showOutput(combined || "Code executed successfully.");
+  } catch (error) {
+    showOutput(String(error), true);
+  }
+});
+
+clearButton.addEventListener("click", () => {
+  showOutput("Output cleared.");
 });
