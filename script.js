@@ -18,6 +18,33 @@ const snippets = {
 let pyodideReady = false;
 let pyodideInstance;
 let pyodidePromise;
+let runCount = 0;
+
+const updateStatus = (message, state = "idle") => {
+  statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error", "loading");
+  if (state === "ready") {
+    statusBadge.classList.add("ready");
+  }
+  if (state === "error") {
+    statusBadge.classList.add("error");
+  }
+  if (state === "loading") {
+    statusBadge.classList.add("loading");
+  }
+};
+
+const openModal = () => {
+  modal.classList.add("is-visible");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const closeModal = () => {
+  modal.classList.remove("is-visible");
+  modal.setAttribute("aria-hidden", "true");
+let pyodideReady = false;
+let pyodideInstance;
+let pyodidePromise;
 let pyodideReady = false;
 let pyodideInstance;
 let runCount = 0;
@@ -149,6 +176,11 @@ async function loadPyodideAndPackages() {
     pyodideInstance = await loadPyodide({
       indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/",
     });
+    pyodideReady = true;
+    updateStatus("Python ready", "ready");
+  } catch (error) {
+    pyodideReady = false;
+    pyodidePromise = null;
   try {
     pyodideInstance = await loadPyodide();
     pyodideReady = true;
@@ -171,6 +203,22 @@ const getPyodide = async () => {
   }
   return pyodidePromise;
 };
+
+snippetButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const snippetKey = button.dataset.snippet;
+    editor.value = snippets[snippetKey] ?? editor.value;
+    editor.focus();
+  });
+});
+
+updateStatus("Click Run to load Python", "idle");
+
+runButton.addEventListener("click", async () => {
+  const code = editor.value.trim();
+
+  if (!code) {
+    showOutput("Please enter some Python code to run.");
 
 snippetButtons.forEach((button) => {
   button.addEventListener("click", () => {
@@ -270,6 +318,11 @@ runButton.addEventListener("click", async () => {
 
 closeModalButton.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal.classList.contains("is-visible")) {
