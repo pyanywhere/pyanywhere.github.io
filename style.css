@@ -91,6 +91,22 @@ h1 {
   box-shadow: 0 0 12px rgba(255, 93, 93, 0.6);
 }
 
+}
+
+.status.ready .status-dot {
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.status.error .status-dot {
+  background: var(--danger);
+  box-shadow: 0 0 12px rgba(255, 93, 93, 0.6);
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -219,6 +235,27 @@ button:disabled {
   background: var(--accent-strong);
 }
 
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary {
+  background: var(--accent);
+  color: #001b0f;
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.3);
+}
+
+.primary:hover {
+  background: var(--accent-strong);
+}
+
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -302,6 +339,19 @@ button:active {
 .modal-subtitle {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.modal-close {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.output-box {
+  min-height: 180px;
+  background: #050505;
 }
 
 .modal-close {

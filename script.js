@@ -38,6 +38,29 @@ const openModal = () => {
 const closeModal = () => {
   modal.classList.remove("is-visible");
   modal.setAttribute("aria-hidden", "true");
+let pyodideReady = false;
+let pyodideInstance;
+let runCount = 0;
+
+const updateStatus = (message, state = "idle") => {
+  statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error");
+  if (state === "ready") {
+    statusBadge.classList.add("ready");
+  }
+  if (state === "error") {
+    statusBadge.classList.add("error");
+  }
+};
+
+const openModal = () => {
+  modal.classList.add("is-visible");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const closeModal = () => {
+  modal.classList.remove("is-visible");
+  modal.setAttribute("aria-hidden", "true");
 
 let pyodideReady = false;
 let pyodideInstance;
@@ -91,11 +114,13 @@ runButton.addEventListener("click", async () => {
 
   if (!code) {
     showOutput("Please enter some Python code to run.");
+    openModal();
     return;
   }
 
   if (!pyodideReady) {
     showOutput("Loading Python runtime... Please wait.");
+    openModal();
     return;
   }
 
@@ -125,6 +150,10 @@ runButton.addEventListener("click", async () => {
 
     runCount += 1;
     showOutput(combined || `Run #${runCount}: Code executed successfully.`);
+    openModal();
+  } catch (error) {
+    showOutput(String(error), true);
+    openModal();
   } catch (error) {
     showOutput(String(error), true);
   } finally {
@@ -138,6 +167,11 @@ clearButton.addEventListener("click", () => {
 
 closeModalButton.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal.classList.contains("is-visible")) {
