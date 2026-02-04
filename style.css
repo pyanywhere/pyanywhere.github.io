@@ -91,6 +91,22 @@ h1 {
   box-shadow: 0 0 12px rgba(255, 93, 93, 0.6);
 }
 
+}
+
+.status.ready .status-dot {
+  background: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.status.error .status-dot {
+  background: var(--danger);
+  box-shadow: 0 0 12px rgba(255, 93, 93, 0.6);
+}
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -138,6 +154,34 @@ h1 {
   border-color: rgba(0, 255, 136, 0.5);
 }
 
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel-label {
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.panel-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.output-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 textarea {
   width: 100%;
   min-height: 260px;
@@ -179,6 +223,44 @@ button:active {
 button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.primary {
+  background: var(--accent);
+  color: #001b0f;
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.3);
+}
+
+.primary:hover {
+  background: var(--accent-strong);
+}
+
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primary {
+  background: var(--accent);
+  color: #001b0f;
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.3);
+}
+
+.primary:hover {
+  background: var(--accent-strong);
+}
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 .primary {
@@ -270,6 +352,38 @@ button:disabled {
 .output-box {
   min-height: 180px;
   background: #050505;
+}
+
+.modal-close {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
+.output-box {
+  min-height: 180px;
+  background: #050505;
+  border-radius: 10px;
+  border: 1px solid #141414;
+  padding: 14px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  white-space: pre-wrap;
+}
+
+.output-panel {
+  position: relative;
+}
+
+.output-box {
+  min-height: 140px;
+  background: #070707;
   border-radius: 10px;
   border: 1px solid #141414;
   padding: 14px;

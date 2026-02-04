@@ -36,6 +36,19 @@
     </section>
   </main>
 
+      <span class="status" id="status">Loading Python runtime…</span>
+    </header>
+
+    <section class="panel">
+      <label class="panel-label" for="editor">Editor</label>
+      <textarea id="editor" spellcheck="false">print("Hello, PyAnyWhere!")</textarea>
+      <div class="actions">
+        <button id="runBtn" class="primary">▶ Run</button>
+        <button id="clearBtn" class="ghost">Clear output</button>
+      </div>
+    </section>
+  </main>
+
   <div class="modal" id="outputModal" aria-hidden="true" role="dialog" aria-labelledby="outputTitle">
     <div class="modal-backdrop" data-close="modal"></div>
     <div class="modal-card">
@@ -49,6 +62,15 @@
       <pre id="output" class="output-box">Ready.</pre>
     </div>
   </div>
+
+    <section class="panel output-panel" aria-live="polite">
+      <div class="panel-label-row">
+        <span class="panel-label">Output</span>
+        <span class="output-hint">stdout / stderr</span>
+      </div>
+      <pre id="output" class="output-box">Ready.</pre>
+    </section>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
   <script src="script.js"></script>
