@@ -61,6 +61,29 @@ const openModal = () => {
 const closeModal = () => {
   modal.classList.remove("is-visible");
   modal.setAttribute("aria-hidden", "true");
+let pyodideReady = false;
+let pyodideInstance;
+let runCount = 0;
+
+const updateStatus = (message, state = "idle") => {
+  statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error");
+  if (state === "ready") {
+    statusBadge.classList.add("ready");
+  }
+  if (state === "error") {
+    statusBadge.classList.add("error");
+  }
+};
+
+const openModal = () => {
+  modal.classList.add("is-visible");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const closeModal = () => {
+  modal.classList.remove("is-visible");
+  modal.setAttribute("aria-hidden", "true");
 
 let pyodideReady = false;
 let pyodideInstance;
@@ -167,6 +190,11 @@ clearButton.addEventListener("click", () => {
 
 closeModalButton.addEventListener("click", closeModal);
 modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && modal.classList.contains("is-visible")) {

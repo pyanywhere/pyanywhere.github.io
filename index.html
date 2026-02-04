@@ -29,6 +29,7 @@
         </div>
       </div>
       <textarea id="editor" spellcheck="false">print("Hello, PyAnyWhere!")</textarea>
+      <p class="helper-text">Tip: Try the snippet chips or run your own code.</p>
       <div class="actions">
         <button id="runBtn" class="primary">▶ Run</button>
         <button id="clearBtn" class="ghost">Clear output</button>
@@ -36,6 +37,9 @@
     </section>
   </main>
 
+  <div class="modal" id="outputModal" aria-hidden="true" role="dialog" aria-labelledby="outputTitle">
+    <div class="modal-backdrop" data-close="modal"></div>
+    <div class="modal-card" role="document">
       <span class="status" id="status">Loading Python runtime…</span>
     </header>
 
