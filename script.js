@@ -17,6 +17,9 @@ const snippets = {
 
 let pyodideReady = false;
 let pyodideInstance;
+let pyodidePromise;
+let pyodideReady = false;
+let pyodideInstance;
 let runCount = 0;
 
 const updateStatus = (message, state = "idle") => {
@@ -70,6 +73,7 @@ let runCount = 0;
 
 const updateStatus = (message, state = "idle") => {
   statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error", "loading");
   statusBadge.classList.remove("ready", "error");
   if (state === "ready") {
     statusBadge.classList.add("ready");
@@ -77,6 +81,8 @@ const updateStatus = (message, state = "idle") => {
   if (state === "error") {
     statusBadge.classList.add("error");
   }
+  if (state === "loading") {
+    statusBadge.classList.add("loading");
 };
 
 const openModal = () => {
@@ -159,8 +165,28 @@ async function loadPyodideAndPackages() {
   }
 }
 
-loadPyodideAndPackages();
+const getPyodide = async () => {
+  if (!pyodidePromise) {
+    pyodidePromise = loadPyodideAndPackages();
+  }
+  return pyodidePromise;
+};
 
+snippetButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const snippetKey = button.dataset.snippet;
+    editor.value = snippets[snippetKey] ?? editor.value;
+    editor.focus();
+  });
+});
+
+updateStatus("Click Run to load Python", "idle");
+
+runButton.addEventListener("click", async () => {
+  const code = editor.value.trim();
+
+  if (!code) {
+    showOutput("Please enter some Python code to run.");
 snippetButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const snippetKey = button.dataset.snippet;
@@ -186,6 +212,27 @@ runButton.addEventListener("click", async () => {
 
   let stdout = "";
   let stderr = "";
+
+  setRunning(true);
+
+  try {
+    if (!pyodideReady) {
+      showOutput("Loading Python runtime... Please wait.");
+      openModal();
+      await getPyodide();
+    }
+
+    pyodideInstance.setStdout({
+      batched: (output) => {
+        stdout += output + "\n";
+      },
+    });
+
+    pyodideInstance.setStderr({
+      batched: (output) => {
+        stderr += output + "\n";
+      },
+    });
 
   pyodideInstance.setStdout({
     batched: (output) => {
@@ -221,6 +268,13 @@ runButton.addEventListener("click", async () => {
   }
 });
 
+closeModalButton.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
 clearButton.addEventListener("click", () => {
   showOutput("Output cleared.");
 });
