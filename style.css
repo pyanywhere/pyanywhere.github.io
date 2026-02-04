@@ -74,6 +74,10 @@ h1 {
   box-shadow: 0 0 10px rgba(255, 209, 102, 0.6);
 }
 
+.status.loading .status-dot {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
 .status.ready {
   color: var(--accent);
 }
@@ -90,6 +94,18 @@ h1 {
 .status.error .status-dot {
   background: var(--danger);
   box-shadow: 0 0 12px rgba(255, 93, 93, 0.6);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 1;
+  }
 }
 
 .panel {
@@ -300,6 +316,12 @@ button:disabled {
   background: var(--accent-strong);
 }
 
+.ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+}
+
 }
 
 button:active {
@@ -384,6 +406,8 @@ button:active {
   gap: 16px;
   transform: translateY(10px);
   transition: transform 0.3s ease;
+}
+
 }
 
 .modal.is-visible .modal-card {

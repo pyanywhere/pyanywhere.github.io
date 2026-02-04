@@ -21,6 +21,32 @@ let runCount = 0;
 
 const updateStatus = (message, state = "idle") => {
   statusText.textContent = message;
+  statusBadge.classList.remove("ready", "error", "loading");
+  if (state === "ready") {
+    statusBadge.classList.add("ready");
+  }
+  if (state === "error") {
+    statusBadge.classList.add("error");
+  }
+  if (state === "loading") {
+    statusBadge.classList.add("loading");
+  }
+};
+
+const openModal = () => {
+  modal.classList.add("is-visible");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const closeModal = () => {
+  modal.classList.remove("is-visible");
+  modal.setAttribute("aria-hidden", "true");
+let pyodideReady = false;
+let pyodideInstance;
+let runCount = 0;
+
+const updateStatus = (message, state = "idle") => {
+  statusText.textContent = message;
   statusBadge.classList.remove("ready", "error");
   if (state === "ready") {
     statusBadge.classList.add("ready");
@@ -108,6 +134,15 @@ const setRunning = (running) => {
 };
 
 async function loadPyodideAndPackages() {
+  const slowLoadTimeout = setTimeout(() => {
+    updateStatus("Still loading Python…", "loading");
+  }, 4000);
+
+  try {
+    updateStatus("Loading Python runtime…", "loading");
+    pyodideInstance = await loadPyodide({
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/",
+    });
   try {
     pyodideInstance = await loadPyodide();
     pyodideReady = true;
@@ -115,6 +150,8 @@ async function loadPyodideAndPackages() {
   } catch (error) {
     showOutput(`Failed to load Python runtime.\n${error}`, true);
     updateStatus("Python failed to load", "error");
+  } finally {
+    clearTimeout(slowLoadTimeout);
     updateStatus("Python ready", true);
   } catch (error) {
     showOutput(`Failed to load Python runtime.\n${error}`, true);
@@ -183,6 +220,18 @@ runButton.addEventListener("click", async () => {
     setRunning(false);
   }
 });
+
+clearButton.addEventListener("click", () => {
+  showOutput("Output cleared.");
+});
+
+closeModalButton.addEventListener("click", closeModal);
+modalBackdrop.addEventListener("click", closeModal);
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && modal.classList.contains("is-visible")) {
+    closeModal();
+  }
 
 clearButton.addEventListener("click", () => {
   showOutput("Output cleared.");
