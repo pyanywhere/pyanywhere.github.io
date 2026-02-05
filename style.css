@@ -484,6 +484,24 @@ button:active {
 
 }
 
+.output-box {
+  min-height: 180px;
+  background: #050505;
+  border-radius: 10px;
+  border: 1px solid #141414;
+  padding: 14px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+
+}
+
 .modal-label {
   text-transform: uppercase;
   font-size: 0.75rem;
