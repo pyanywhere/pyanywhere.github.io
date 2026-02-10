@@ -67,7 +67,7 @@ try:
 except Exception:
     _error = traceback.format_exc()
 
-{"stdout": _stdout.getvalue(), "stderr": _stderr.getvalue(), "error": _error}
+(_stdout.getvalue(), _stderr.getvalue(), _error)
 `);
 
   const result = proxy.toJs ? proxy.toJs() : proxy;

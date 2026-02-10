@@ -124,6 +124,7 @@ button.ghost {
   display: grid;
   place-items: center;
   pointer-events: none;
+  padding: 12px;
 }
 
 .modal-backdrop {
