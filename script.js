@@ -63,7 +63,7 @@ _error = ""
 
 try:
     with redirect_stdout(_stdout), redirect_stderr(_stderr):
-        exec(_user_code, {})
+        exec(str(_user_code), {})
 except Exception:
     _error = traceback.format_exc()
 
