@@ -35,22 +35,8 @@ const setOutput = (text, isError = false) => {
   openModal();
 };
 
-const normalizeResult = (result) => {
-  if (!Array.isArray(result)) {
-    return { stdout: "", stderr: "", error: "" };
-  }
-
-  const [stdout = "", stderr = "", error = ""] = result;
-  return {
-    stdout: String(stdout),
-    stderr: String(stderr),
-    error: String(error),
-  };
-};
-
 async function ensurePyodide() {
   if (pyodide) return pyodide;
-
   if (!pyodidePromise) {
     setStatus("Loading Python runtime...");
     pyodidePromise = loadPyodide({
@@ -58,15 +44,9 @@ async function ensurePyodide() {
     });
   }
 
-  try {
-    pyodide = await pyodidePromise;
-    setStatus("Python runtime ready.");
-    return pyodide;
-  } catch (error) {
-    pyodidePromise = null;
-    pyodide = null;
-    throw error;
-  }
+  pyodide = await pyodidePromise;
+  setStatus("Python runtime ready.");
+  return pyodide;
 }
 
 async function runPythonCode(code) {
@@ -92,12 +72,11 @@ except Exception:
 
   const result = proxy.toJs ? proxy.toJs() : proxy;
   if (proxy.destroy) proxy.destroy();
-  return normalizeResult(result);
+  return result;
 }
 
 runBtn.addEventListener("click", async () => {
   const code = editor.value.trim();
-
   if (!code) {
     setOutput("Please write some Python code before running.", true);
     return;
@@ -116,11 +95,7 @@ runBtn.addEventListener("click", async () => {
     if (result.stderr) chunks.push(`stderr:\n${result.stderr.trimEnd()}`);
     if (result.error) chunks.push(result.error.trimEnd());
 
-    if (!chunks.length) {
-      chunks.push("No printed output. Use print(...) to display values.");
-    }
-
-    setOutput(chunks.join("\n\n"), Boolean(result.error));
+    setOutput(chunks.length ? chunks.join("\n\n") : "(No output)", Boolean(result.error));
     setStatus("Done. Ready for next run.");
   } catch (error) {
     setOutput(`Execution failed:\n${error}`, true);
